@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DApp di Voto NFT-Gated</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --primary-hover: #4338CA;
+            --secondary-color: #10B981;
+            --secondary-hover: #059669;
+            --danger-color: #EF4444;
+            --light-gray: #F3F4F6;
+            --medium-gray: #E5E7EB;
+            --dark-gray: #4B5563;
+            --text-color: #1F2937;
+            --card-bg: #FFFFFF;
+            --body-bg: #F9FAFB;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 2em;
+            background-color: var(--body-bg); 
+            color: var(--text-color); 
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #container { 
+            max-width: 800px; 
+            margin: auto; 
+            background: var(--card-bg); 
+            padding: 2.5em; 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow);
+            border: 1px solid var(--medium-gray);
+        }
+
+        h1, h2, h3 { 
+            color: var(--text-color); 
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.25em;
+            margin-bottom: 0.5em;
+        }
+
+        h2 {
+            font-size: 1.75em;
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 0.6em;
+            margin-top: 1.5em;
+            margin-bottom: 1em;
+        }
+        
+        h3 {
+            font-size: 1.25em;
+            margin-bottom: 0.75em;
+        }
+
+        p {
+            line-height: 1.6;
+            color: var(--dark-gray);
+        }
+
+        button { 
+            background-color: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: var(--border-radius); 
+            cursor: pointer; 
+            font-size: 1em;
+            font-weight: 500;
+            margin-top: 10px; 
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        button:hover { 
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled { 
+            background-color: #9CA3AF; 
+            cursor: not-allowed; 
+            transform: none;
+        }
+
+        #connectWalletBtn { 
+            background-color: var(--secondary-color); 
+        }
+        
+        #connectWalletBtn:hover { 
+            background-color: var(--secondary-hover); 
+        }
+
+        #status { 
+            margin-top: 1.5em; 
+            padding: 1.5em; 
+            background-color: var(--light-gray); 
+            border-radius: var(--border-radius); 
+            line-height: 1.8;
+            border: 1px solid var(--medium-gray);
+        }
+        #status strong {
+            color: var(--text-color);
+        }
+        #status span {
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+
+        #adminPanel, #votingPanel { 
+            margin-top: 2.5em; 
+            padding: 2em;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            background-color: #fff;
+        }
+
+        input[type="text"] { 
+            padding: 12px; 
+            width: calc(100% - 26px); 
+            margin-bottom: 10px; 
+            border: 1px solid var(--medium-gray); 
+            border-radius: var(--border-radius); 
+            font-size: 1em;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgb(79 70 229 / 0.2);
+        }
+
+        .candidate { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 1em; 
+            border-bottom: 1px solid var(--medium-gray);
+            transition: background-color 0.2s;
+        }
+        .candidate:first-of-type {
+            border-top: 1px solid var(--medium-gray);
+        }
+        .candidate:hover {
+            background-color: var(--light-gray);
+        }
+        .candidate span { 
+            font-size: 1.1em; 
+            font-weight: 500;
+        }
+        .candidate .voteBtn {
+            margin: 0;
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .pill { 
+            padding: 6px 14px; 
+            border-radius: 9999px; 
+            font-size: 0.85em; 
+            font-weight: 600;
+            color: white; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .pill.member { background-color: var(--secondary-color); }
+        .pill.not-member { background-color: var(--danger-color); }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+
+    <div id="container">
+        <h1>DApp di Voto con NFT</h1>
+        <p>Un sistema di voto decentralizzato dove solo i possessori di un NFT "Membership" possono partecipare.</p>
+        
+        <button id="connectWalletBtn">Connetti Wallet</button>
+        
+        <div id="status">
+            <strong>Stato:</strong> <span id="connectionStatus">Non connesso</span><br>
+            <strong>Account:</strong> <span id="userAccount">N/A</span><br>
+            <strong>Stato Iscrizione:</strong> <span id="membershipStatus">N/A</span><br>
+            <strong>Proprietario del Contratto:</strong> <span id="ownerAccount">N/A</span>
+        </div>
+
+        <div id="adminPanel" style="display: none;">
+            <h2>Pannello Amministratore</h2>
+            <div id="mint-section">
+                <h3>Crea Nuovi NFT</h3>
+                <input type="text" id="mintAddress" placeholder="Indirizzo a cui assegnare l'NFT">
+                <button id="mintBtn">Crea NFT</button>
+            </div>
+            <div id="poll-section" style="margin-top: 2em;">
+                <h3>Gestisci Sondaggio</h3>
+                <input type="text" id="pollName" placeholder="Nome del sondaggio">
+                <input type="text" id="candidateNames" placeholder="Nomi candidati (separati da virgola)">
+                <button id="startPollBtn">Avvia/Resetta Sondaggio</button>
+            </div>
+        </div>
+
+        <div id="votingPanel">
+            <h2 id="pollTitle">Sondaggio non ancora avviato</h2>
+            <div id="candidatesList"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        const { ethers } = window;
+        import { contractInfo } from './contractInfo.js';
+
+        // --- UI Elements ---
+        const ui = {
+            pollTitle: document.getElementById('pollTitle'),
+            candidatesList: document.getElementById('candidatesList'),
+            connectWalletBtn: document.getElementById('connectWalletBtn'),
+            connectionStatus: document.getElementById('connectionStatus'),
+            userAccount: document.getElementById('userAccount'),
+            ownerAccount: document.getElementById('ownerAccount'),
+            membershipStatus: document.getElementById('membershipStatus'),
+            adminPanel: document.getElementById('adminPanel'),
+            mintBtn: document.getElementById('mintBtn'),
+            startPollBtn: document.getElementById('startPollBtn'),
+            mintAddressInput: document.getElementById('mintAddress'),
+            pollNameInput: document.getElementById('pollName'),
+            candidateNamesInput: document.getElementById('candidateNames'),
+        };
+
+        // --- State variables ---
+        let provider;
+        let signer;
+        let votingContract;
+        let readOnlyVotingContract;
+        let membershipContract;
+
+        async function refreshPollData() {
+            try {
+                // Ripristino della soluzione robusta: ricreare sempre il provider e il contratto
+                // per garantire dati freschi, bypassando qualsiasi cache.
+                const freshProvider = new ethers.providers.Web3Provider(window.ethereum);
+                const freshReadOnlyContract = new ethers.Contract(contractInfo.voting.address, contractInfo.voting.abi, freshProvider);
+
+                const [pollId, pollName] = await freshReadOnlyContract.getPollDetails({ blockTag: 'latest' });
+                
+                let newHTML = '';
+                if (pollId.isZero()) {
+                    ui.pollTitle.textContent = "Nessun sondaggio attivo.";
+                    newHTML = ''; // Assicura che la lista sia vuota
+                } else {
+                    ui.pollTitle.textContent = `Sondaggio #${pollId}: ${pollName}`;
+                    const count = await freshReadOnlyContract.getCandidatesCount({ blockTag: 'latest' });
+                    const promises = Array.from({ length: count }, (_, i) => freshReadOnlyContract.getCandidate(i + 1, { blockTag: 'latest' }));
+                    const candidates = await Promise.all(promises);
+                    
+                    candidates.forEach(([id, name, voteCount]) => {
+                        newHTML += `<div class="candidate"><span>${name} (Voti: ${voteCount})</span><button class="voteBtn" data-id="${id}">Vota</button></div>`;
+                    });
+                }
+
+                // Forza l'aggiornamento del DOM ogni volta.
+                ui.candidatesList.innerHTML = newHTML;
+
+            } catch (error) {
+                console.error("Errore durante l'aggiornamento del sondaggio:", error);
+                ui.pollTitle.textContent = "Errore di caricamento sondaggio.";
+            }
+        }
+
+        // --- The single source of truth for UI updates ---
+        async function renderApp() {
+            console.log("--- renderApp() called ---");
+            try {
+                ui.adminPanel.style.display = 'none';
+                ui.pollTitle.textContent = "Caricamento...";
+
+                const owner = await readOnlyVotingContract.owner();
+                ui.ownerAccount.textContent = owner;
+                
+                await refreshPollData();
+
+                const accounts = await provider.listAccounts();
+                if (accounts.length > 0) {
+                    signer = provider.getSigner();
+                    const userAddress = await signer.getAddress();
+                    
+                    votingContract = new ethers.Contract(contractInfo.voting.address, contractInfo.voting.abi, signer);
+                    membershipContract = new ethers.Contract(contractInfo.membership.address, contractInfo.membership.abi, signer);
+
+                    ui.connectionStatus.textContent = "Connesso";
+                    ui.userAccount.textContent = userAddress;
+                    ui.connectWalletBtn.disabled = true;
+
+                    if (userAddress.toLowerCase() === owner.toLowerCase()) {
+                        ui.adminPanel.style.display = 'block';
+                    }
+
+                    const roMembership = new ethers.Contract(contractInfo.membership.address, contractInfo.membership.abi, provider);
+                    const balance = await roMembership.balanceOf(userAddress);
+                    ui.membershipStatus.innerHTML = balance.gt(0) ? '<span class="pill member">Membro</span>' : '<span class="pill not-member">Non Membro</span>';
+                } else {
+                    signer = null;
+                    ui.connectionStatus.textContent = "Non connesso";
+                    ui.userAccount.textContent = "N/A";
+                    ui.membershipStatus.textContent = "N/A";
+                    ui.connectWalletBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error rendering app:", error);
+                ui.pollTitle.textContent = "Errore di caricamento.";
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                await provider.send("eth_requestAccounts", []);
+                await renderApp();
+            } catch (error) {
+                console.error("Could not connect wallet:", error);
+            }
+        }
+
+        async function handleAction(action) {
+            if (!signer) {
+                alert("Per favore, connetti il wallet.");
+                // Lancia un errore per interrompere la catena della promessa.
+                throw new Error("User not connected");
+            }
+            try {
+                const tx = await action();
+                await tx.wait();
+            } catch (error) {
+                console.error("Transaction failed:", error);
+                // Mostra l'errore all'utente e poi rilancia per segnalare il fallimento.
+                alert(`Errore: ${error.reason || "Transazione fallita."}`);
+                throw error;
+            }
+        }
+
+        function init() {
+            if (!window.ethereum) return alert("MetaMask non è installato!");
+            
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            readOnlyVotingContract = new ethers.Contract(contractInfo.voting.address, contractInfo.voting.abi, provider);
+
+            ui.connectWalletBtn.addEventListener('click', connectWallet);
+            
+            ui.candidatesList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('voteBtn')) {
+                    handleAction(() => votingContract.vote(e.target.dataset.id))
+                        .then(() => {
+                            // Questo blocco viene eseguito solo se l'azione ha successo.
+                            alert("Voto registrato!");
+                            refreshPollData();
+                        })
+                        .catch(err => {
+                            // L'errore è già stato gestito e mostrato all'utente da handleAction.
+                            // Questo blocco serve solo a prevenire errori non gestiti nella console.
+                            console.log("Azione fallita come previsto (l'utente è stato avvisato).");
+                        });
+                }
+            });
+
+            ui.startPollBtn.addEventListener('click', () => {
+                const pollName = ui.pollNameInput.value;
+                const namesRaw = ui.candidateNamesInput.value;
+                if (!pollName || !namesRaw) return alert("Inserisci tutti i campi.");
+                handleAction(() => votingContract.startPoll(pollName, namesRaw.split(',').map(n => n.trim()))).then(() => {
+                    alert("Sondaggio avviato!");
+                    renderApp();
+                });
+            });
+
+            ui.mintBtn.addEventListener('click', () => {
+                const addr = ui.mintAddressInput.value;
+                if (!ethers.utils.isAddress(addr)) return alert("Indirizzo non valido.");
+                handleAction(() => membershipContract.mint(addr)).then(() => {
+                    alert(`NFT creato per ${addr}`);
+                    renderApp();
+                });
+            });
+
+            window.ethereum.on('accountsChanged', renderApp);
+            window.ethereum.on('chainChanged', () => window.location.reload());
+
+            // Nessun aggiornamento automatico. L'utente deve aggiornare manualmente.
+            renderApp();
+        }
+
+        init();
+    </script>
+</body>
+</html>
